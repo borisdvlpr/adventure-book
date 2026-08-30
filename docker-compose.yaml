@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: adventurebook-postgres18
+    environment:
+      POSTGRES_DB: adventurebook
+      POSTGRES_USER: adventurebook
+      POSTGRES_PASSWORD: changemeinprod!
+    ports:
+      - "5432:5432"
+    volumes:
+      - adventurebook-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adventurebook -d adventurebook"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  adventurebook-data:
