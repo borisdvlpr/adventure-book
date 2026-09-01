@@ -27,9 +27,9 @@ public class Consequence {
     private String text;
 
     public Consequence(ConsequenceType type, Integer value, String text) {
-        this.type = Objects.requireNonNull(type, "consequence type must be not null");
+        this.type = Objects.requireNonNull(type, "Consequence type must be not null");
         if (value == null || value <= 0) {
-            throw new IllegalArgumentException("consequence value must be a positive number, but was: " + value);
+            throw new IllegalArgumentException("Consequence value must be a positive number, but was: " + value);
         }
 
         this.value = value;

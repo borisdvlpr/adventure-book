@@ -43,12 +43,12 @@ public class Book {
 
     @ElementCollection
     @Column(name = "message", nullable = false, columnDefinition = "text")
-    @CollectionTable(name = "book_issue", joinColumns = @JoinColumn(name = "book_id"))
+    @CollectionTable(name = "book_validation_error", joinColumns = @JoinColumn(name = "book_id"))
     private List<String> validationErrors = new ArrayList<>();
 
     @ElementCollection
     @Column(name = "message", nullable = false, columnDefinition = "text")
-    @CollectionTable(name = "book_validation_error", joinColumns = @JoinColumn(name = "book_id"))
+    @CollectionTable(name = "book_warning", joinColumns = @JoinColumn(name = "book_id"))
     private List<String> warnings = new ArrayList<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
