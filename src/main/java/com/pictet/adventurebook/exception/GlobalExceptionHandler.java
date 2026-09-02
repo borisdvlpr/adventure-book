@@ -37,6 +37,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
+    @ExceptionHandler(BookNotFoundException.class)
+    public ProblemDetail handleBookNotFoundException(BookNotFoundException e) {
+        return createProblem(
+                HttpStatus.NOT_FOUND,
+                "Book not found",
+                e.getMessage()
+        );
+    }
+
     private static ProblemDetail createProblem(HttpStatus status, String title, String detail) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(title);
