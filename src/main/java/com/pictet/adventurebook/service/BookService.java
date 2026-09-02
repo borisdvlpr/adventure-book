@@ -44,6 +44,14 @@ public class BookService {
         return bookMapper.toBookDetailsResponse(book);
     }
 
+    @Transactional
+    public BookDetailsResponse deleteBookCategory(Long id, CategoryType category) {
+        Book book = findBook(id);
+        book.removeCategory(category);
+
+        return bookMapper.toBookDetailsResponse(book);
+    }
+
     private Book findBook(Long id) {
         return bookRepository.findById(id).orElseThrow(() ->
                 new BookNotFoundException(String.format("No book found with id '%d'.", id))
