@@ -24,7 +24,7 @@ public class BookService {
     private final BookMapper bookMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<BookSummaryResponse> search(BookSearchCriteria criteria, Pageable pageable) {
+    public PageResponse<BookSummaryResponse> searchBook(BookSearchCriteria criteria, Pageable pageable) {
         Page<Book> page = bookRepository.findAll(BookSpecification.matching(criteria), pageable);
 
         return PageResponse.from(page, bookMapper::toBookSummaryResponse);

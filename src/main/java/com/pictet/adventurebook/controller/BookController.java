@@ -24,20 +24,23 @@ public class BookController {
             BookSearchCriteria criteria,
             @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        return bookService.search(criteria, pageable);
+        return bookService.searchBook(criteria, pageable);
     }
 
     @GetMapping("/{id}")
+    // @Cacheable(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse getBook(@PathVariable Long id) {
         return bookService.getBook(id);
     }
 
     @PutMapping("/{id}/categories/{category}")
+    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse addBookCategory(@PathVariable Long id, @PathVariable CategoryType category) {
         return bookService.addBookCategory(id, category);
     }
 
     @DeleteMapping("/{id}/categories/{category}")
+    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse deleteBookCategory(@PathVariable Long id, @PathVariable CategoryType category) {
         return bookService.deleteBookCategory(id, category);
     }
