@@ -22,13 +22,13 @@ public class BookImportValidator {
             return new BookValidationResult(errors, warnings);
         }
 
-        Set<Long> ids = sections.stream().map(SectionDto::id).collect(Collectors.toSet());
+        Set<Integer> ids = sections.stream().map(SectionDto::id).collect(Collectors.toSet());
         if (ids.size() != sections.size()) {
             warnings.add("Book contains duplicate section ids.");
         }
 
         // rule 1 - exactly one beginning.
-        List<Long> begins = sections.stream()
+        List<Integer> begins = sections.stream()
                 .filter(s -> s.type() == SectionType.BEGIN)
                 .map(SectionDto::id)
                 .toList();
@@ -38,7 +38,7 @@ public class BookImportValidator {
         }
 
         // rule 2 - at least one ending
-        List<Long> ends = sections.stream()
+        List<Integer> ends = sections.stream()
                 .filter(s -> s.type() == SectionType.END)
                 .map(SectionDto::id)
                 .toList();
@@ -69,10 +69,10 @@ public class BookImportValidator {
         return new BookValidationResult(errors, warnings);
     }
 
-    private void addReachabilityWarnings(List<SectionDto> sections, Set<Long> ids, long begin,
-                                         List<Long> ends, List<String> warnings) {
-        Set<Long> reached = traverseFrom(sections, ids, begin);
-        List<Long> unreachable = ids.stream().filter(id -> !reached.contains(id)).sorted().toList();
+    private void addReachabilityWarnings(List<SectionDto> sections, Set<Integer> ids, Integer begin,
+                                         List<Integer> ends, List<String> warnings) {
+        Set<Integer> reached = traverseFrom(sections, ids, begin);
+        List<Integer> unreachable = ids.stream().filter(id -> !reached.contains(id)).sorted().toList();
 
         if (!unreachable.isEmpty()) {
             warnings.add("Sections unreachable from the beginning: %s.".formatted(unreachable));
@@ -83,15 +83,15 @@ public class BookImportValidator {
         }
     }
 
-    private Set<Long> traverseFrom(List<SectionDto> sections, Set<Long> ids, long begin) {
-        Map<Long, List<BookImportDto.OptionDto>> optionsById = sections.stream()
+    private Set<Integer> traverseFrom(List<SectionDto> sections, Set<Integer> ids, int begin) {
+        Map<Integer, List<BookImportDto.OptionDto>> optionsById = sections.stream()
                 .collect(Collectors.toMap(SectionDto::id, SectionDto::options, (a, b) -> a));
-        Set<Long> reached = new HashSet<>();
-        Deque<Long> queue = new ArrayDeque<>();
+        Set<Integer> reached = new HashSet<>();
+        Deque<Integer> queue = new ArrayDeque<>();
         queue.push(begin);
 
         while (!queue.isEmpty()) {
-            Long current = queue.pop();
+            Integer current = queue.pop();
 
             if (!reached.add(current)) {
                 continue;

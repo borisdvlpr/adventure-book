@@ -9,7 +9,7 @@ import java.util.TreeSet;
 @Component
 public class BookMapper {
 
-    public BookSummaryResponse toSummary(Book book) {
+    public BookSummaryResponse toBookSummaryResponse(Book book) {
         return new BookSummaryResponse(
                 book.getId(),
                 book.getTitle(),

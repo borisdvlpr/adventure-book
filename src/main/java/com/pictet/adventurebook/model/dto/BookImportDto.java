@@ -23,7 +23,7 @@ public record BookImportDto(
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record SectionDto(long id, String text, SectionType type, List<OptionDto> options) {
+    public record SectionDto(int id, String text, SectionType type, List<OptionDto> options) {
 
         public SectionDto {
             options = options == null ? List.of() : List.copyOf(options);
@@ -31,7 +31,7 @@ public record BookImportDto(
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record OptionDto(String description, long gotoId, ConsequenceDto consequence) {
+    public record OptionDto(String description, int gotoId, ConsequenceDto consequence) {
 
     }
 
