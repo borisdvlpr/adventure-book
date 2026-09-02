@@ -9,6 +9,7 @@ import com.pictet.adventurebook.model.type.SectionType;
 import java.util.List;
 import java.util.Set;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record BookImportDto(
         String title,
         String author,
@@ -30,7 +31,7 @@ public record BookImportDto(
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record OptionDto(String description, long gotoId, ConsequenceDto consequenceDto) {
+    public record OptionDto(String description, long gotoId, ConsequenceDto consequence) {
 
     }
 
