@@ -1,5 +1,5 @@
 
-package com.pictet.adventurebook.model.dto;
+package com.pictet.adventurebook.model.dto.request;
 
 import com.pictet.adventurebook.model.type.CategoryType;
 import com.pictet.adventurebook.model.type.DifficultyType;

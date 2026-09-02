@@ -1,6 +1,6 @@
 package com.pictet.adventurebook.repository;
 
-import com.pictet.adventurebook.model.dto.BookSearchCriteria;
+import com.pictet.adventurebook.model.dto.request.BookSearchCriteria;
 import com.pictet.adventurebook.model.entity.Book;
 import com.pictet.adventurebook.model.type.CategoryType;
 import com.pictet.adventurebook.model.type.DifficultyType;

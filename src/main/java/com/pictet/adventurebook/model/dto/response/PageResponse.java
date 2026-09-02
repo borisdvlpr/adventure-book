@@ -1,4 +1,4 @@
-package com.pictet.adventurebook.model.dto;
+package com.pictet.adventurebook.model.dto.response;
 
 import org.springframework.data.domain.Page;
 
