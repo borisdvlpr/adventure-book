@@ -14,7 +14,7 @@ CREATE INDEX idx_book_difficulty ON book (difficulty);
 CREATE TABLE book_category
 (
     book_id  BIGINT      NOT NULL REFERENCES book (id) ON DELETE CASCADE,
-    category varchar(32) NOT NULL,
+    category VARCHAR(32) NOT NULL,
     CONSTRAINT uq_book_category UNIQUE (book_id, category)
 );
 
