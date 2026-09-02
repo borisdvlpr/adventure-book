@@ -7,6 +7,7 @@ import com.pictet.adventurebook.model.dto.response.BookDetailsResponse;
 import com.pictet.adventurebook.model.dto.response.BookSummaryResponse;
 import com.pictet.adventurebook.model.dto.response.PageResponse;
 import com.pictet.adventurebook.model.entity.Book;
+import com.pictet.adventurebook.model.type.CategoryType;
 import com.pictet.adventurebook.repository.BookRepository;
 import com.pictet.adventurebook.repository.BookSpecification;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,14 @@ public class BookService {
     @Transactional(readOnly = true)
     public BookDetailsResponse getBook(Long id) {
         Book book = findBook(id);
+        return bookMapper.toBookDetailsResponse(book);
+    }
+
+    @Transactional
+    public BookDetailsResponse addBookCategory(Long id, CategoryType category) {
+        Book book = findBook(id);
+        book.addCategory(category);
+
         return bookMapper.toBookDetailsResponse(book);
     }
 
