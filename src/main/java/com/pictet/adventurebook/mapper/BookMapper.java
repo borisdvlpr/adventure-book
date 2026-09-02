@@ -1,6 +1,6 @@
 package com.pictet.adventurebook.mapper;
 
-import com.pictet.adventurebook.model.dto.BookSummaryResponse;
+import com.pictet.adventurebook.model.dto.response.BookSummaryResponse;
 import com.pictet.adventurebook.model.entity.Book;
 import org.springframework.stereotype.Component;
 
