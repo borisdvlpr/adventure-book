@@ -1,0 +1,210 @@
+### list all books
+# Objectives 1 and 2. Run this first: it captures a book id for every request below.
+# Invalid books are listed like any other, flagged by "valid": false.
+GET {{host}}/api/v1/books
+Accept: application/json
+
+> {%
+    client.global.set("bookId", response.body.content[0].id);
+    client.log("bookId = " + client.global.get("bookId"));
+%}
+
+### search by title
+# partial, case-insensitive
+GET {{host}}/api/v1/books?title=crystal
+Accept: application/json
+
+### search by author
+# partial, case-insensitive
+GET {{host}}/api/v1/books?author=blackwood
+Accept: application/json
+
+### search by difficulty
+# exact, uppercase: EASY | MEDIUM | HARD
+GET {{host}}/api/v1/books?difficulty=HARD
+Accept: application/json
+
+### search by category
+# ADVENTURE | FANTASY | FICTION | HORROR | MYSTERY | SCIENCE | SCIENCE_FICTION | THRILLER
+# Empty until a category is attached below: no supplied file carries one.
+GET {{host}}/api/v1/books?category=ADVENTURE
+Accept: application/json
+
+### combine filters
+# the four filters AND together
+GET {{host}}/api/v1/books?title=the&difficulty=EASY
+Accept: application/json
+
+### paginate and sort
+# sort accepts any Book field: title, author, difficulty, valid
+GET {{host}}/api/v1/books?page=0&size=2&sort=author,desc
+Accept: application/json
+
+### a wildcard in a search term is matched literally
+# returns an empty page rather than everything
+GET {{host}}/api/v1/books?title=%25
+Accept: application/json
+
+### rejected: unknown difficulty
+# 400, type .../invalid-parameter
+GET {{host}}/api/v1/books?difficulty=IMPOSSIBLE
+Accept: application/json
+
+### get a book by ID
+# Objective 2. Adds validationErrors, warnings and beginSectionNumber over the summary.
+# beginSectionNumber is null when a book has no single BEGIN section.
+GET {{host}}/api/v1/books/{{bookId}}
+Accept: application/json
+
+> {%
+    client.global.set("beginSection", response.body.beginSectionNumber);
+    client.log("beginSection = " + client.global.get("beginSection"));
+%}
+
+### rejected: unknown book
+# 404, type .../book-not-found
+GET {{host}}/api/v1/books/999999
+Accept: application/json
+
+### add a book to the collection
+# Objective 6. The body is exactly the shape of a file in resources/books -- same DTO, same
+# validator, same four rules. 201 with a Location header.
+POST {{host}}/api/v1/books/new
+Content-Type: application/json
+
+{
+  "title": "The Salt Marsh",
+  "author": "Evelyn Stormrider",
+  "difficulty": "MEDIUM",
+  "categories": [
+    "ADVENTURE",
+    "MYSTERY"
+  ],
+  "sections": [
+    {
+      "id": 1,
+      "text": "Reeds close over the path behind you.",
+      "type": "BEGIN",
+      "options": [
+        {
+          "description": "Wade towards the light",
+          "gotoId": 2
+        },
+        {
+          "description": "Cut inland through the thorns",
+          "gotoId": 2,
+          "consequence": {
+            "type": "LOSE_HEALTH",
+            "value": "3",
+            "text": "The thorns open your hands."
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "Firm ground, and a road.",
+      "type": "END"
+    }
+  ]
+}
+
+> {%
+    client.global.set("createdBookId", response.body.id);
+    client.log("createdBookId = " + client.global.get("createdBookId"));
+%}
+
+### add an invalid book
+# Still 201, with valid=false and validationErrors attached. Invalid books are refused once,
+# at the point of play -- not at the point of submission. Section 2 is a NODE with no options
+# and section 1 points at a section that does not exist.
+POST {{host}}/api/v1/books/new
+Content-Type: application/json
+
+{
+  "title": "A Door That Goes Nowhere",
+  "author": "Nobody",
+  "difficulty": "HARD",
+  "sections": [
+    {
+      "id": 1,
+      "text": "A door that goes nowhere.",
+      "type": "BEGIN",
+      "options": [
+        {
+          "description": "Walk through",
+          "gotoId": 2
+        },
+        {
+          "description": "Vanish",
+          "gotoId": 404
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "A dead end.",
+      "type": "NODE"
+    },
+    {
+      "id": 3,
+      "text": "The exit.",
+      "type": "END"
+    }
+  ]
+}
+
+### rejected: a book that is already in the collection
+# 409, type .../book-already-exists. Run the "add a book" request above twice to see it.
+POST {{host}}/api/v1/books/new
+Content-Type: application/json
+
+{
+  "title": "The Salt Marsh",
+  "author": "Evelyn Stormrider",
+  "difficulty": "MEDIUM",
+  "sections": [
+    {
+      "id": 1,
+      "text": "Reeds.",
+      "type": "BEGIN",
+      "options": [
+        {
+          "description": "Go",
+          "gotoId": 2
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "text": "Road.",
+      "type": "END"
+    }
+  ]
+}
+
+### rejected: structurally malformed body
+# 400 from bean validation: no title, no sections
+POST {{host}}/api/v1/books/new
+Content-Type: application/json
+
+{
+  "author": "Nobody",
+  "difficulty": "EASY",
+  "sections": []
+}
+
+### attach a category
+# Objective 2. Idempotent: running it twice attaches once. Returns the updated book.
+PUT {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
+Accept: application/json
+
+### detach a category
+# Also idempotent: detaching one that is not attached is a no-op, not an error.
+DELETE {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
+Accept: application/json
+
+### rejected: unknown category
+# 400, type .../invalid-parameter, listing the accepted values
+PUT {{host}}/api/v1/books/{{bookId}}/categories/NOT_A_CATEGORY
+Accept: application/json

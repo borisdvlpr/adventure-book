@@ -1,0 +1,16 @@
+### health
+# Kubernetes liveness and readiness probes are enabled; the DB shows under components.
+GET {{host}}/actuator/health
+Accept: application/json
+
+### liveness probe
+GET {{host}}/actuator/health/liveness
+Accept: application/json
+
+### readiness probe
+GET {{host}}/actuator/health/readiness
+Accept: application/json
+
+### info
+GET {{host}}/actuator/info
+Accept: application/json

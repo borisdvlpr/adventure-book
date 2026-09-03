@@ -1,0 +1,145 @@
+# Objective 4. Playing is a separate resource from reading: every state change is a POST.
+#
+# NOTE: all three supplied fixtures are invalid, so none of them can be started. Copy
+# the-fork-in-the-road.json into src/main/resources/books/ and restart the app, or wait for
+# objective 6 (POST /books) to add one over the API. The "rejected: invalid book" request
+# below works without it.
+
+### setup: find the playable book
+GET {{host}}/api/v1/books?title=fork
+Accept: application/json
+
+> {%
+    client.global.set("bookId", response.body.content[0].id);
+    client.log("bookId = " + client.global.get("bookId"));
+%}
+
+### start a game
+# Begins at the book's BEGIN section on full health. lastConsequence is null.
+POST {{host}}/api/v1/games/new
+Content-Type: application/json
+
+{
+  "playerId": "{{playerId}}",
+  "bookId": {{bookId}}
+}
+
+> {%
+    client.global.set("gameId", response.body.gameId);
+    client.log("gameId = " + client.global.get("gameId"));
+%}
+
+### list a player's games
+# Objective 5. Progress is saved on every choice, so pausing is just not sending the next one;
+# this is how a player finds their way back. Most recently played first.
+GET {{host}}/api/v1/games?playerId={{playerId}}
+Accept: application/json
+
+### list only the games still in progress
+# status is optional: IN_PROGRESS | COMPLETED | DEAD
+GET {{host}}/api/v1/games?playerId={{playerId}}&status=IN_PROGRESS
+Accept: application/json
+
+### list a second player's games
+# Same book, entirely separate progress. Start a game as this player first.
+GET {{host}}/api/v1/games?playerId=someone-else
+Accept: application/json
+
+### start a game as a second player
+POST {{host}}/api/v1/games
+Content-Type: application/json
+
+{
+  "playerId": "someone-else",
+  "bookId": {{bookId}}
+}
+
+### rejected: listing without a player
+# 400. This is "my games", not "all games".
+GET {{host}}/api/v1/games
+Accept: application/json
+
+### read the current state
+# Resuming a paused game. lastConsequence is null here: it belongs to the response of the
+# move that caused it, not to every subsequent read.
+GET {{host}}/api/v1/games/{{gameId}}
+Accept: application/json
+
+### make a harmless choice
+# ordinal is the option's position within the section, 0-based. Section 1 option 0 carries
+# no consequence, so health stays at 10.
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 0 }
+
+### heal, and hit the cap
+# Section 2 option 0 is GAIN_HEALTH 5. Health never exceeds the starting 10.
+# Section 3 is an END, so this also completes the game.
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 0 }
+
+### rejected: the game is over
+# 422, type .../game-completed
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 0 }
+
+### take damage
+# Start a fresh game first. Section 1 option 1 is LOSE_HEALTH 4; the response carries
+# lastConsequence with healthBefore and healthAfter.
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 1 }
+
+### die
+# Section 1 option 2 is LOSE_HEALTH 10. Health floors at 0 and the status becomes DEAD.
+# Death is evaluated before completion: arriving at an END with no health is still a death.
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 2 }
+
+### rejected: the player is dead
+# 422, type .../player-is-dead
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 0 }
+
+### rejected: an option the section does not offer
+# 422, type .../invalid-choice, carrying the rejected ordinal and how many options exist
+POST {{host}}/api/v1/games/{{gameId}}/choices
+Content-Type: application/json
+
+{ "ordinal": 99 }
+
+### rejected: starting an invalid book
+# 422, type .../book-not-playable. The reasons travel as a validationErrors extension member.
+# This is the only place the validity flag refuses anything: invalid books are still listed,
+# searched and read everywhere else.
+POST {{host}}/api/v1/games/new
+Content-Type: application/json
+
+{
+  "playerId": "{{playerId}}",
+  "bookId": 1
+}
+
+### rejected: no player
+# 400 from bean validation
+POST {{host}}/api/v1/games/new
+Content-Type: application/json
+
+{
+  "bookId": {{bookId}}
+}
+
+### rejected: unknown game
+# 404, type .../game-not-found
+GET {{host}}/api/v1/games/999999
+Accept: application/json
