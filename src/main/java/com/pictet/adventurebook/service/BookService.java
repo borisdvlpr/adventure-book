@@ -42,6 +42,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    // @Cacheable(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse getBook(Long id) {
         Book book = findBook(id);
         return bookMapper.toBookDetailsResponse(book, findBeginSectionNumber(id));
@@ -60,6 +61,7 @@ public class BookService {
     }
 
     @Transactional
+    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse addBookCategory(Long id, CategoryType category) {
         Book book = findBook(id);
         book.addCategory(category);
@@ -82,6 +84,7 @@ public class BookService {
     }
 
     @Transactional
+    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse deleteBookCategory(Long id, CategoryType category) {
         Book book = findBook(id);
         book.removeCategory(category);

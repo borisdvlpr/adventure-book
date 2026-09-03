@@ -34,7 +34,6 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    // @Cacheable(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse getBook(@PathVariable Long id) {
         return bookService.getBook(id);
     }
@@ -52,13 +51,11 @@ public class BookController {
     }
 
     @PutMapping("/{id}/categories/{category}")
-    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse addBookCategory(@PathVariable Long id, @PathVariable CategoryType category) {
         return bookService.addBookCategory(id, category);
     }
 
     @DeleteMapping("/{id}/categories/{category}")
-    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse deleteBookCategory(@PathVariable Long id, @PathVariable CategoryType category) {
         return bookService.deleteBookCategory(id, category);
     }
