@@ -14,7 +14,8 @@ public record BookDetailsResponse(
         Set<CategoryType> categories,
         boolean valid,
         List<String> validationErrors,
-        List<String> warnings
+        List<String> warnings,
+        Integer beginSectionNumber
 ) {
 
 }
