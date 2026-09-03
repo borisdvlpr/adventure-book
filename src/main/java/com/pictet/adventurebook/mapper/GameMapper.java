@@ -2,6 +2,7 @@ package com.pictet.adventurebook.mapper;
 
 import com.pictet.adventurebook.model.dto.response.GameStateResponse;
 import com.pictet.adventurebook.model.dto.response.GameStateResponse.ConsequenceResponse;
+import com.pictet.adventurebook.model.dto.response.GameSummaryResponse;
 import com.pictet.adventurebook.model.entity.Consequence;
 import com.pictet.adventurebook.model.entity.GameSession;
 import com.pictet.adventurebook.model.entity.Section;
@@ -33,12 +34,27 @@ public class GameMapper {
         );
     }
 
+    public GameSummaryResponse toGameSummaryResponse(GameSession session) {
+        return new GameSummaryResponse(
+                session.getId(),
+                session.getPlayerId(),
+                session.getBook().getId(),
+                session.getBook().getTitle(),
+                session.getStatus(),
+                session.getHealth(),
+                GameSession.MAX_HEALTH,
+                session.getCurrentSectionNumber(),
+                session.getStartedAt(),
+                session.getUpdatedAt()
+        );
+    }
+
     private ConsequenceResponse toConsequenceResponse(Consequence consequence, int healthBefore, int healthAfter) {
         if (consequence == null) {
             return null;
         }
 
-        return new  ConsequenceResponse(
+        return new ConsequenceResponse(
                 consequence.getType(),
                 consequence.getValue(),
                 consequence.getText(),
