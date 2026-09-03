@@ -26,7 +26,7 @@ public class BookImportService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public void importBook(BookImportDto dto) {
+    public Book importBook(BookImportDto dto) {
         BookValidationResult result = validator.validate(dto);
 
         Book book = new Book(dto.title(), dto.author(), dto.difficulty());
@@ -44,6 +44,7 @@ public class BookImportService {
             log.info("Imported '{}' with warnings: {}", saved.getTitle(), result.warnings());
         }
 
+        return book;
     }
 
     private Section toSection(SectionDto dto) {
