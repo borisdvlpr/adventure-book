@@ -53,6 +53,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createProblem(HttpStatus.NOT_FOUND, "Game not found", e.getMessage());
     }
 
+    @ExceptionHandler(GameAlreadyFinishedException.class)
+    public ProblemDetail handleGameAlreadyFinishedException(GameAlreadyFinishedException e) {
+        ProblemDetail problem = createProblem(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                e.getStatus() == GameStatusType.DEAD ? "Player is dead" : "Game already completed",
+                e.getMessage()
+        );
+
+        problem.setProperty("status", e.getStatus());
+
+        return problem;
+    }
+
     private static ProblemDetail createProblem(HttpStatus status, String title, String detail) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(title);
