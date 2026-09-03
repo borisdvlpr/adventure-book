@@ -1,5 +1,6 @@
 package com.pictet.adventurebook.exception;
 
+import com.pictet.adventurebook.model.type.GameStatusType;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -39,11 +40,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BookNotFoundException.class)
     public ProblemDetail handleBookNotFoundException(BookNotFoundException e) {
-        return createProblem(
-                HttpStatus.NOT_FOUND,
-                "Book not found",
-                e.getMessage()
-        );
+        return createProblem(HttpStatus.NOT_FOUND, "Book not found", e.getMessage());
+    }
+
+    @ExceptionHandler(SectionNotFoundException.class)
+    public ProblemDetail handleSectionNotFoundException(SectionNotFoundException e) {
+        return createProblem(HttpStatus.NOT_FOUND, "Section not found", e.getMessage());
     }
 
     private static ProblemDetail createProblem(HttpStatus status, String title, String detail) {
