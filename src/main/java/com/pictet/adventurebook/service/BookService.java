@@ -1,8 +1,10 @@
 package com.pictet.adventurebook.service;
 
+import com.pictet.adventurebook.exception.BookAlreadyExistsException;
 import com.pictet.adventurebook.exception.BookNotFoundException;
 import com.pictet.adventurebook.exception.SectionNotFoundException;
 import com.pictet.adventurebook.mapper.BookMapper;
+import com.pictet.adventurebook.model.dto.BookImportDto;
 import com.pictet.adventurebook.model.dto.request.BookSearchCriteria;
 import com.pictet.adventurebook.model.dto.response.BookDetailsResponse;
 import com.pictet.adventurebook.model.dto.response.BookSummaryResponse;
@@ -27,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookService {
 
+    private final BookImportService bookImportService;
     private final BookRepository bookRepository;
     private final SectionRepository sectionRepository;
     private final BookMapper bookMapper;
@@ -62,6 +65,20 @@ public class BookService {
         book.addCategory(category);
 
         return bookMapper.toBookDetailsResponse(book, findBeginSectionNumber(id));
+    }
+
+    @Transactional
+    public BookDetailsResponse createNewBook(BookImportDto dto) {
+        String title = dto.title();
+        String author = dto.author();
+
+        if (bookRepository.existsByTitleAndAuthor(title, author)) {
+            throw new BookAlreadyExistsException(title, author);
+        }
+
+        Book book = bookImportService.importBook(dto);
+
+        return bookMapper.toBookDetailsResponse(book, findBeginSectionNumber(book.getId()));
     }
 
     @Transactional
