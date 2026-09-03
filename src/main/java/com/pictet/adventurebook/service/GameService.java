@@ -5,15 +5,20 @@ import com.pictet.adventurebook.mapper.GameMapper;
 import com.pictet.adventurebook.model.dto.request.ChoiceRequest;
 import com.pictet.adventurebook.model.dto.request.StartGameRequest;
 import com.pictet.adventurebook.model.dto.response.GameStateResponse;
+import com.pictet.adventurebook.model.dto.response.GameSummaryResponse;
+import com.pictet.adventurebook.model.dto.response.PageResponse;
 import com.pictet.adventurebook.model.entity.Book;
 import com.pictet.adventurebook.model.entity.GameSession;
 import com.pictet.adventurebook.model.entity.Option;
 import com.pictet.adventurebook.model.entity.Section;
+import com.pictet.adventurebook.model.type.GameStatusType;
 import com.pictet.adventurebook.model.type.SectionType;
 import com.pictet.adventurebook.repository.BookRepository;
 import com.pictet.adventurebook.repository.GameSessionRepository;
 import com.pictet.adventurebook.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +50,15 @@ public class GameService {
         );
 
         return gameMapper.toGameStateResponse(session, begin);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GameSummaryResponse> listGames(String playerId, GameStatusType status, Pageable pageable) {
+        Page<GameSession> page = status == null
+                ? gameSessionRepository.findByPlayerId(playerId, pageable)
+                : gameSessionRepository.findByPlayerIdAndStatus(playerId, status, pageable);
+
+        return PageResponse.from(page, gameMapper::toGameSummaryResponse);
     }
 
     @Transactional(readOnly = true)
