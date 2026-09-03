@@ -45,6 +45,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createProblem(HttpStatus.NOT_FOUND, "Book not found", e.getMessage());
     }
 
+    @ExceptionHandler(BookNotPlayableException.class)
+    public ProblemDetail handleBookNotPlayableException(BookNotPlayableException e) {
+        ProblemDetail problem = createProblem(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                "Book not playable",
+                e.getMessage()
+        );
+
+        problem.setProperty("validationErrors", e.getValidationErrors());
+
+        return problem;
+    }
+
     @ExceptionHandler(SectionNotFoundException.class)
     public ProblemDetail handleSectionNotFoundException(SectionNotFoundException e) {
         return createProblem(HttpStatus.NOT_FOUND, "Section not found", e.getMessage());
