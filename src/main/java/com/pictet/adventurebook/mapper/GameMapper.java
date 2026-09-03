@@ -23,7 +23,7 @@ public class GameMapper {
         Long bookId = session.getBook().getId();
 
         return new GameStateResponse(
-                section.getId(),
+                session.getId(),
                 session.getPlayerId(),
                 bookId,
                 session.getStatus(),
