@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,6 +38,12 @@ public class GameSession {
     @Column(name = "status", nullable = false, length = 16)
     private GameStatusType status;
 
+    @Column(name = "started_at", nullable = false, updatable = false)
+    private Instant startedAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -46,6 +54,18 @@ public class GameSession {
         this.currentSectionNumber = beginSectionNumber;
         this.health = MAX_HEALTH;
         this.status = GameStatusType.IN_PROGRESS;
+    }
+
+    @PrePersist
+    void onCreate() {
+        Instant now = Instant.now();
+        this.startedAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        this.updatedAt = Instant.now();
     }
 
     public void applyChoice(Option option, Section destination) {
