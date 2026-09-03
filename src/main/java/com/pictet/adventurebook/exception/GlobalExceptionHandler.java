@@ -58,6 +58,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(InvalidChoiceException.class)
+    public ProblemDetail handleInvalidChoiceException(InvalidChoiceException e) {
+        ProblemDetail problem = createProblem(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                "Invalid choice",
+                e.getMessage()
+        );
+
+        problem.setProperty("ordinal", e.getOrdinal());
+        problem.setProperty("availableOptions", e.getAvailableOptions());
+
+        return problem;
+    }
+
     @ExceptionHandler(SectionNotFoundException.class)
     public ProblemDetail handleSectionNotFoundException(SectionNotFoundException e) {
         return createProblem(HttpStatus.NOT_FOUND, "Section not found", e.getMessage());
