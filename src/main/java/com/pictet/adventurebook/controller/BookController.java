@@ -5,6 +5,7 @@ import com.pictet.adventurebook.model.dto.request.BookSearchCriteria;
 import com.pictet.adventurebook.model.dto.response.BookDetailsResponse;
 import com.pictet.adventurebook.model.dto.response.BookSummaryResponse;
 import com.pictet.adventurebook.model.dto.response.PageResponse;
+import com.pictet.adventurebook.model.dto.response.SectionResponse;
 import com.pictet.adventurebook.model.type.CategoryType;
 import com.pictet.adventurebook.service.BookService;
 import jakarta.validation.Valid;
@@ -48,6 +49,11 @@ public class BookController {
                 .toUri();
 
         return ResponseEntity.created(location).body(newBook);
+    }
+
+    @GetMapping("/{bookId}/sections/{sectionNumber}")
+    public SectionResponse getSection(@PathVariable Long bookId, @PathVariable int sectionNumber) {
+        return bookService.readSection(bookId, sectionNumber);
     }
 
     @PutMapping("/{id}/categories/{category}")
