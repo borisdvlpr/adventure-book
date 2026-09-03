@@ -48,6 +48,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return createProblem(HttpStatus.NOT_FOUND, "Section not found", e.getMessage());
     }
 
+    @ExceptionHandler(GameSessionNotFoundException.class)
+    public ProblemDetail handleGameSessionNotFoundException(GameSessionNotFoundException e) {
+        return createProblem(HttpStatus.NOT_FOUND, "Game not found", e.getMessage());
+    }
+
     private static ProblemDetail createProblem(HttpStatus status, String title, String detail) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(title);
