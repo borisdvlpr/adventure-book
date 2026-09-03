@@ -144,8 +144,6 @@ Written with **JUnit 5** and **Mockito**, covering components in isolation with 
 
 - `BookImportValidatorTest` — the four validity rules exhaustively, plus proof that reachability lands in warnings and
   never in errors. No mocks needed; the validator takes a DTO and returns a value.
-- `GameSessionTest` — the game rules where they live: damage, the healing cap, the floor at zero, and death being
-  evaluated before completion.
 - `BookServiceTest`, `GameServiceTest` — mocked collaborators, covering the failure branches and verifying that a
   refused operation writes nothing.
 
@@ -155,7 +153,7 @@ Written with **JUnit 5** and **Mockito**, covering components in isolation with 
 the whole application against a real PostgreSQL instance with Flyway building the schema.
 
 **Testcontainers rather than H2**, so migrations run against the same engine in the build as in production and a
-Postgres-specific migration cannot pass CI and fail on deploy. The image tag is pinned — `postgres:latest` makes the
+Postgres-specific migration cannot pass CI and fail on deploy. The image tag is pinned — `postgres:18-alpine` makes the
 build non-reproducible, which is the one thing integration tests exist to rule out.
 
 **The sample books are the test matrix.** Each of the four supplied files fails differently — empty file, options-less
@@ -166,6 +164,14 @@ fabricated file to the seeded catalogue.
 > **Note:** Docker must be running locally for the controller integration tests to execute.
 
 ## Run Locally
+
+1. Run the application
+    - `./mvnw spring-boot:run`
+
+> **Note:** The application contains the spring-boot-docker-compose, running the compose file
+> before executing.
+
+Alternatively:
 
 1. Start infrastructure with Docker Compose:
     - `docker compose up -d`
