@@ -1,6 +1,4 @@
 ### list all books
-# Objectives 1 and 2. Run this first: it captures a book id for every request below.
-# Invalid books are listed like any other, flagged by "valid": false.
 GET {{host}}/api/v1/books
 Accept: application/json
 
@@ -28,6 +26,21 @@ Accept: application/json
 # ADVENTURE | FANTASY | FICTION | HORROR | MYSTERY | SCIENCE | SCIENCE_FICTION | THRILLER
 # Empty until a category is attached below: no supplied file carries one.
 GET {{host}}/api/v1/books?category=ADVENTURE
+Accept: application/json
+
+### attach a category
+# Objective 2. Idempotent: running it twice attaches once. Returns the updated book.
+PUT {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
+Accept: application/json
+
+### detach a category
+# Also idempotent: detaching one that is not attached is a no-op, not an error.
+DELETE {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
+Accept: application/json
+
+### rejected: unknown category
+# 400, type .../invalid-parameter, listing the accepted values
+PUT {{host}}/api/v1/books/{{bookId}}/categories/NOT_A_CATEGORY
 Accept: application/json
 
 ### combine filters
@@ -193,18 +206,3 @@ Content-Type: application/json
   "difficulty": "EASY",
   "sections": []
 }
-
-### attach a category
-# Objective 2. Idempotent: running it twice attaches once. Returns the updated book.
-PUT {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
-Accept: application/json
-
-### detach a category
-# Also idempotent: detaching one that is not attached is a no-op, not an error.
-DELETE {{host}}/api/v1/books/{{bookId}}/categories/ADVENTURE
-Accept: application/json
-
-### rejected: unknown category
-# 400, type .../invalid-parameter, listing the accepted values
-PUT {{host}}/api/v1/books/{{bookId}}/categories/NOT_A_CATEGORY
-Accept: application/json

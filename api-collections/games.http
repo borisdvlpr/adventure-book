@@ -1,12 +1,7 @@
-# Objective 4. Playing is a separate resource from reading: every state change is a POST.
-#
-# NOTE: all three supplied fixtures are invalid, so none of them can be started. Copy
-# the-fork-in-the-road.json into src/main/resources/books/ and restart the app, or wait for
-# objective 6 (POST /books) to add one over the API. The "rejected: invalid book" request
-# below works without it.
+@playerId = eduardo
 
 ### setup: find the playable book
-GET {{host}}/api/v1/books?title=fork
+GET {{host}}/api/v1/books?title=charted
 Accept: application/json
 
 > {%
@@ -46,7 +41,7 @@ GET {{host}}/api/v1/games?playerId=someone-else
 Accept: application/json
 
 ### start a game as a second player
-POST {{host}}/api/v1/games
+POST {{host}}/api/v1/games/new
 Content-Type: application/json
 
 {
