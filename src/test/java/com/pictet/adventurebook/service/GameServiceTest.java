@@ -50,7 +50,7 @@ class GameServiceTest {
     private GameService gameService;
 
     @Test
-    @DisplayName("an invalid book is refused, and no session is created for it")
+    @DisplayName("An invalid book is refused")
     void startGameRefusesInvalidBook() {
         Book invalid = new Book("Broken", "Author", DifficultyType.HARD);
         invalid.recordValidation(List.of("Section 2 is not an END but has no options."), List.of());
@@ -64,7 +64,7 @@ class GameServiceTest {
     }
 
     @Test
-    @DisplayName("an unknown game raises GameSessionNotFoundException")
+    @DisplayName("An unknown game raises GameSessionNotFoundException")
     void getGameThrowsWhenMissing() {
         when(gameSessionRepository.findById(7L)).thenReturn(Optional.empty());
 
@@ -72,7 +72,7 @@ class GameServiceTest {
     }
 
     @Test
-    @DisplayName("a finished game refuses further choices, carrying the status that ended it")
+    @DisplayName("A finished game refuses further choices")
     void makeChoiceRefusesFinishedGame() {
         GameSession dead = new GameSession("anna", new Book("B", "A", DifficultyType.EASY), 1);
         dead.applyChoice(
@@ -88,7 +88,7 @@ class GameServiceTest {
     }
 
     @Test
-    @DisplayName("an ordinal the section does not offer is refused with the count that does exist")
+    @DisplayName("An ordinal the section does not offer is refused with the count that does exist")
     void makeChoiceRefusesUnknownOrdinal() {
         GameSession session = new GameSession("anna", new Book("B", "A", DifficultyType.EASY), 1);
         Section current = new Section(1, "A fork.", SectionType.BEGIN);
@@ -106,7 +106,7 @@ class GameServiceTest {
     }
 
     @Test
-    @DisplayName("a valid choice advances the session and applies its consequence")
+    @DisplayName("A valid choice advances the session and applies its consequence")
     void makeChoiceAdvancesTheSession() {
         GameSession session = new GameSession("anna", new Book("B", "A", DifficultyType.EASY), 1);
         Section current = new Section(1, "A fork.", SectionType.BEGIN);
