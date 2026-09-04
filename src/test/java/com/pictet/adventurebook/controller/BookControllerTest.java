@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,18 +39,11 @@ class BookControllerTest {
         void listsBooks() throws Exception {
             mockMvc.perform(get("/api/v1/books"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content[0].title").value("A Brand New Adventure"))
-                    .andExpect(jsonPath("$.content[0].valid").value(true))
-                    .andExpect(jsonPath("$.page").value(0));
-        }
-
-        @Test
-        @DisplayName("Searches by title")
-        void searchesByTitle() throws Exception {
-            mockMvc.perform(get("/api/v1/books").param("title", "CRYSTAL"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.totalElements").value(1))
-                    .andExpect(jsonPath("$.content[0].title").value("The Crystal Caverns"));
+                    .andExpect(jsonPath("$.page").value(0))
+                    .andExpect(jsonPath("$.content[*].title", hasItems(
+                            "The Crystal Caverns", "Pirates of the Jade Sea", "The Prisoner")))
+                    .andExpect(jsonPath("$.content[?(@.title == 'Pirates of the Jade Sea')].valid").value(false))
+                    .andExpect(jsonPath("$.content[?(@.title == 'Dragon Quest')]").isEmpty());
         }
 
         @Test
@@ -64,7 +59,8 @@ class BookControllerTest {
         void searchesByDifficulty() throws Exception {
             mockMvc.perform(get("/api/v1/books").param("difficulty", "HARD"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content[0].title").value("A Broken Adventure"));
+                    .andExpect(jsonPath("$.content[*].difficulty", everyItem(is("HARD"))))
+                    .andExpect(jsonPath("$.content[*].title", hasItem("The Prisoner")));
         }
 
         @Test

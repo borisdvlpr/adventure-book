@@ -1,0 +1,30 @@
+name: Test
+description: "Build and test the Spring Boot application"
+
+inputs:
+  java-version:
+    description: "JDK major version to build with"
+    required: false
+    default: "25"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v5
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java-version }}
+        cache: maven
+
+    - name: Resolve and verify dependencies
+      run: ./mvnw -B -C dependency:go-offline
+      shell: bash
+
+    - name: Build
+      run: ./mvnw -B -DskipTests package
+      shell: bash
+
+    - name: Test
+      run: ./mvnw -B verify
+      shell: bash

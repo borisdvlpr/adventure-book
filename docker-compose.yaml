@@ -11,7 +11,26 @@ services:
     volumes:
       - adventurebook-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U adventurebook -d adventurebook"]
+      test: [ "CMD-SHELL", "pg_isready -U adventurebook -d adventurebook" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8-alpine
+    container_name: adventurebook-redis
+    ports:
+      - "6379:6379"
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5

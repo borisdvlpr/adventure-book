@@ -1,5 +1,6 @@
 package com.pictet.adventurebook.service;
 
+import com.pictet.adventurebook.config.CacheConfig;
 import com.pictet.adventurebook.exception.BookAlreadyExistsException;
 import com.pictet.adventurebook.exception.BookNotFoundException;
 import com.pictet.adventurebook.exception.SectionNotFoundException;
@@ -18,6 +19,8 @@ import com.pictet.adventurebook.repository.BookRepository;
 import com.pictet.adventurebook.repository.BookSpecification;
 import com.pictet.adventurebook.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,7 +45,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    // @Cacheable(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
+    @Cacheable(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse getBook(Long id) {
         Book book = findBook(id);
         return bookMapper.toBookDetailsResponse(book, findBeginSectionNumber(id));
@@ -61,7 +64,7 @@ public class BookService {
     }
 
     @Transactional
-    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
+    @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse addBookCategory(Long id, CategoryType category) {
         Book book = findBook(id);
         book.addCategory(category);
@@ -84,7 +87,7 @@ public class BookService {
     }
 
     @Transactional
-    // @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
+    @CacheEvict(cacheNames = CacheConfig.BOOKS_CACHE, key = "#id")
     public BookDetailsResponse deleteBookCategory(Long id, CategoryType category) {
         Book book = findBook(id);
         book.removeCategory(category);

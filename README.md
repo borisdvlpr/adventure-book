@@ -4,7 +4,9 @@ A REST API for browsing and playing choose-your-own-adventure books, built with:
 
 - REST API with RFC 9457 problem details
 - PostgreSQL persistence
+- In-memory caching
 - Flyway migrations
+- OpenAPI docs
 - Unit and integration tests
 
 ## Getting Started
@@ -39,9 +41,13 @@ an ending with no health left is a death, not a win.
 
 ```
 HTTP  ──▶  controller  ──▶  service  ──▶  repository  ──▶  PostgreSQL
-                │              
+                │              │
+                │              └──▶  cache (books, in-memory)
                 └──▶  mapper  ──▶  DTO
 ```
+
+A single relational database is the source of truth. Books never change after import, so the book lookup is cached in
+memory and evicted only by the one operation that can invalidate it.
 
 ## Project Structure & Patterns
 
@@ -56,7 +62,7 @@ The project follows a standard **layered architecture** with a clear separation 
 - `repository`: Spring Data JPA interfaces, plus the search specification.
 - `mapper`: Entity ↔ DTO conversion.
 - `model`: Domain models, split into `entity`, `dto` (`request` / `response`), and `type`.
-- `config`: Startup book loader.
+- `config`: Cache, OpenAPI, and the startup book loader.
 - `exception`: Global error handling, custom exceptions, and problem type URIs.
 
 ### DTO Pattern & Mappers
@@ -67,7 +73,8 @@ Internal entities (`model.entity`) are never exposed through the controllers.
   `GameStateResponse`). Request and response shapes are separated because they genuinely diverge —
   `BookSearchCriteria` normalises blank input, `BookDetailResponse` carries validity information no request supplies.
 - **Mappers (`mapper`)**: Convert between entities and DTOs, keeping the API contract decoupled from the database
-  schema.
+  schema. Collections are **copied**, never passed through, so no Hibernate-managed collection ends up behind a cache
+  key.
 
 Pagination uses an explicit `PageResponse` record rather than returning Spring Data's `Page`, whose JSON structure
 Spring itself warns is unstable.
@@ -126,6 +133,14 @@ Two schema decisions worth knowing:
   one supplied book points at a section that does not exist — a foreign key would make it impossible to persist.
   Referential integrity of the graph is enforced by the validator instead.
 
+### Cache Layer
+
+The book detail lookup is cached and evicted on category change. This is cheap precisely because books are immutable
+apart from their categories, so the only thing that can invalidate an entry is the operation that already evicts it.
+
+The cache holds **DTOs, not entities** — caching a managed entity would put Hibernate collections behind a cache key and
+fail on the first hit after the session closed.
+
 ## Book Import
 
 One ingestion path, reachable two ways. A startup runner reads `classpath:books/*.json` and feeds the **same** import
@@ -165,14 +180,6 @@ fabricated file to the seeded catalogue.
 
 ## Run Locally
 
-1. Run the application
-    - `./mvnw spring-boot:run`
-
-> **Note:** The application contains the spring-boot-docker-compose, running the compose file
-> before executing.
-
-Alternatively:
-
 1. Start infrastructure with Docker Compose:
     - `docker compose up -d`
 
@@ -187,3 +194,10 @@ The application seeds itself from `src/main/resources/books/` on startup.
 
 > **Note:** Docker must be running before executing the full test suite, as the controller
 > integration tests spin up a PostgreSQL container via Testcontainers.
+
+## API Docs
+
+When the app is running, OpenAPI/Swagger UI is available at:
+`http://localhost:8080/swagger-ui.html`
+
+The raw specification is at `http://localhost:8080/v3/api-docs`.
